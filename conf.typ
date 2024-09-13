@@ -9,7 +9,6 @@
 
 // FUNCTIONS
 // Exported
-
 /**
  * Create a blockquote.
  *
@@ -138,7 +137,6 @@
   set heading(numbering: (..nums) => {
     let level = nums.pos().len()
 
-    // only level 1 and 2 are numbered
     let pattern = if level == 1 {
       "I -"
     } else if level == 2 {
@@ -146,7 +144,7 @@
     } else if level == 3 {
       "    I. I .I -"
     } else if level == 4 {
-      "     I. I. I. a -"
+      "     I. I. I. 1 -"
     }
 
     if pattern != none {
