@@ -1,1 +1,1 @@
-[1] (feat/HEAD) First commit.
+[2] (feat/main) Better settings and `conf.typ` file.
