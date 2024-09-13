@@ -5,4 +5,6 @@ It uses [CNAM](https://www.cnam.fr/)'s logo and colors.
 
 ## Result
 
-<iframe width="100%" height="800" src="./main.pdf"></iframe>
+<div style="display: flex; justify-content: center;">
+  <img src="./preview.png" width="100%">
+</div>

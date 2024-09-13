@@ -1,1 +1,1 @@
-[2] (feat/main) Better settings and `conf.typ` file.
+[3] (feat/main) Better presentation + final file generated.
