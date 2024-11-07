@@ -15,7 +15,7 @@
 
 #codly(
   zebra-fill: none
-))
+)
 
 = Main title
 == Subtitle

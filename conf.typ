@@ -104,11 +104,9 @@
 
   // main settings
   set page(
-    header: locate(
-      loc => if [#loc.page()] != [1] {
+    header: if [#context().page()] != [1] {
         [#emph()[#title #h(1fr) #author]]
-      }
-    ),
+    },
     header-ascent: 50%,
     footer-descent: 50%,
     margin: (
@@ -193,6 +191,17 @@
       logo
     )
   }
+
+  show heading: i-figured.reset-counters
+  show math.equation: i-figured.show-equation.with(
+    level: 1,
+    zero-fill: true,
+    leading-zero: true,
+    numbering: "(1.1)",
+    prefix: "eqt:",
+    only-labeled: false,  // numbering all block equations implicitly
+    unnumbered-label: "-",
+  )
 
   v(2fr)
 
