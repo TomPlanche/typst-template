@@ -3,9 +3,15 @@
  *
  * This uses the [CNAM](https://www.cnam.fr/) logo and colors.
  *
+ *
+ *
  * @author Tom Planche.
  * @license MIT.
  */
+
+#import "@preview/i-figured:0.2.4"
+
+#let bodyFontSize = 12pt
 
 // FUNCTIONS
 // Exported
@@ -33,6 +39,15 @@
     radius: radius,
     content
   )
+}
+
+#let icon(codepoint) = {
+  box(
+    height: 1em,
+    baseline: 0.1em,
+    image(codepoint)
+  )
+  h(0.1em)
 }
 
 /**
@@ -70,6 +85,201 @@
     date.display("[day]/[month]/[year]")
 }
 
+#let buildMainHeader(mainHeadingContent, author) = {
+  [
+    #smallcaps(mainHeadingContent) #h(1fr) #emph(author)
+    #line(length: 100%)
+  ]
+}
+
+#let buildSecondaryHeader(mainHeadingContent, secondaryHeadingContent, author) = {
+  [
+    #smallcaps(mainHeadingContent) #h(1fr) #emph(secondaryHeadingContent) #h(1fr)  #emph(author)
+    #line(length: 100%)
+  ]
+}
+
+// To know if the secondary heading appears after the main heading
+#let isAfter(secondaryHeading, mainHeading) = {
+  let secHeadPos = secondaryHeading.location().position()
+  let mainHeadPos = mainHeading.location().position()
+  if (secHeadPos.at("page") > mainHeadPos.at("page")) {
+    return true
+  }
+  if (secHeadPos.at("page") == mainHeadPos.at("page")) {
+    return secHeadPos.at("y") > mainHeadPos.at("y")
+  }
+  return false
+}
+
+#let getHeader(
+    author: "Tom Planche",
+) = {
+  locate(loc => {
+    // Find if there is a level 1 heading on the current page
+    let nextMainHeading = query(selector(heading).after(loc)).find(headIt => {
+     headIt.location().page() == loc.page() and headIt.level == 1
+    })
+
+    if (nextMainHeading != none) {
+      return buildMainHeader(nextMainHeading.body, author)
+    }
+
+    // Find the last previous level 1 heading -- at this point surely there's one :-)
+    let lastMainHeading = query(selector(heading).before(loc)).filter(headIt => {
+      headIt.level == 1
+    }).last()
+
+    // Find if the last level > 1 heading in previous pages
+    let previousSecondaryHeadingArray = query(selector(heading).before(loc)).filter(headIt => {
+      headIt.level > 1
+    })
+
+    let lastSecondaryHeading = if (previousSecondaryHeadingArray.len() != 0) {previousSecondaryHeadingArray.last()} else {none}
+
+    // Find if the last secondary heading exists and if it's after the last main heading
+    if (lastSecondaryHeading != none and isAfter(lastSecondaryHeading, lastMainHeading)) {
+      return buildSecondaryHeader(lastMainHeading.body, lastSecondaryHeading.body, author)
+    }
+
+    return buildMainHeader(lastMainHeading.body)
+  })
+}
+
+#let code(
+  line-spacing: 5pt,
+  line-offset: 5pt,
+  numbering: true,
+  inset: 5pt,
+  radius: 3pt,
+  number-align: right,
+  stroke: 1pt + luma(180),
+  fill: luma(250),
+  text-style: (size: 8pt, font: "Fira Code"),
+  width: 100%,
+  lines: auto,
+  lang: none,
+  lang-box: (
+    gutter: 5pt,
+    radius: 3pt,
+    outset: 1.75pt,
+    fill: rgb("#ffbfbf"),
+    stroke: 1pt + rgb("#ff8a8a")
+  ),
+  source
+) = {
+  show raw.line: set text(..text-style)
+  show raw: set text(..text-style)
+
+  set par(justify: false, leading: line-spacing)
+
+  let label-regex = regex("<((\w|_|-)+)>[ \t\r\f]*(\n|$)")
+
+  let labels = source
+    .text
+    .split("\n")
+    .map(line => {
+      let match = line.match(label-regex)
+
+      if match != none {
+        match.captures.at(0)
+      } else {
+        none
+      }
+    })
+
+  // We need to have different lines use different tables to allow for the text after the lang-box to go in its horizontal space.
+  // This means we need to calculate a size for the number column. This requires AOT knowledge of the maximum number horizontal space.
+  let number-style(number) = text(
+    size: 1.25em,
+    raw(str(number))
+  )
+
+  let unlabelled-source = source.text.replace(
+    label-regex,
+    "\n"
+  )
+
+  show raw.where(block: true): it => style(styles => {
+    let lines = lines
+
+    if lines == auto {
+      lines = (auto, auto)
+    }
+
+    if lines.at(0) == auto {
+      lines.at(0) = 1
+    }
+
+    if lines.at(1) == auto {
+      lines.at(1) = it.lines.len()
+    }
+
+    lines = (lines.at(0) - 1, lines.at(1))
+
+    let maximum-number-length = measure(number-style(lines.at(1))).width
+
+    block(
+      inset: inset,
+      radius: radius,
+      stroke: stroke,
+      fill: fill,
+      width: width,
+      {
+        stack(
+          dir: ttb,
+          spacing: line-spacing,
+          ..it
+            .lines
+            .slice(..lines)
+            .map(line => table(
+              stroke: none,
+              inset: 0pt,
+              columns: (maximum-number-length, 1fr, auto),
+              column-gutter: (line-offset, if line.number - 1 == lines.at(0) { lang-box.gutter } else { 0pt }),
+              align: (number-align, left, top + right),
+              if numbering {
+                text(
+                    ..text-style,
+                    fill: gray,
+                    str(line.number)
+                )
+              },
+              {
+                let line-label = labels.at(line.number - 1)
+
+                if line-label != none {
+                  show figure: it => it.body
+
+                  counter(figure.where(kind: "sourcerer")).update(line.number - 1)
+                  [
+                    #figure(supplement: "Line", kind: "sourcerer", outlined: false, line)
+                    #label(line-label)
+                  ]
+                } else {
+                  line
+                }
+              },
+              if line.number - 1 == lines.at(0) and lang != none {
+                rect(
+                  fill: lang-box.fill,
+                  stroke: lang-box.stroke,
+                  inset: 0pt,
+                  outset: lang-box.outset,
+                  radius: radius,
+                  text(size: 1.25em, lang)
+                )
+              }
+            ))
+            .flatten()
+        )
+      }
+    )
+  })
+
+  raw(block: true, lang: source.lang, unlabelled-source)
+}
+
 // MAIN
 #let conf(
   title: "",
@@ -88,8 +298,8 @@
 ) = {
   // VARS
   // Save heading and body font families in variables.
-  let body-font = "Source Sans Pro"
-  let title-font = "Barlow"
+  let body-font = "New Computer Modern Math"
+  let title-font = "New Computer Modern Math"
 
   // Colors
   let primary-color = rgb(main-color) // alpha = 100%
@@ -104,9 +314,6 @@
 
   // main settings
   set page(
-    header: if [#context().page()] != [1] {
-        [#emph()[#title #h(1fr) #author]]
-    },
     header-ascent: 50%,
     footer-descent: 50%,
     margin: (
@@ -126,7 +333,7 @@
   set figure.caption(separator: [ --- ], position: top)
 
   // Set body font family.
-  set text(font: body-font, 12pt)
+  set text(font: body-font, size: bodyFontSize)
 
   // Headings font and color
   show heading: set text(font: title-font, fill: primary-color)
@@ -151,7 +358,7 @@
   })
 
   // space for heading
-  show heading: it => it + v(1em)
+  show heading: it => it + v(.5em)
 
   // Set link style
   show link: it => underline(text(fill: primary-color, it))
@@ -167,8 +374,9 @@
   show regex(if color-words.len() == 0 { "$ " } else { color-words.join("|") }): text.with(fill: primary-color)
 
   // customize inline raw code
-  let side-padding = .5em;
-  show raw.where(block: false) : it => h(side-padding) + box(fill: primary-color.lighten(90%), outset: side-padding, it) + h(side-padding)
+  let side-padding = .35em;
+  show raw.where(block: false) : it => h(side-padding) + box(fill: primary-color.lighten(90%), outset: (x: .25em, y: .5em), radius: 2pt, it) + h(side-padding)
+
 
   // DECORATIONS
   // Top left
@@ -248,8 +456,10 @@
     ]
   )
 
+  set page(header: getHeader(author: author))
+
   pagebreak()
 
-  body
 
+  body
 }
