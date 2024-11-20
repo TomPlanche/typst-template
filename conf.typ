@@ -3,8 +3,6 @@
  *
  * This uses the [CNAM](https://www.cnam.fr/) logo and colors.
  *
- *
- *
  * @author Tom Planche.
  * @license MIT.
  */
@@ -56,6 +54,7 @@
  * @param fill - The color of the background.
  * @param inset - The padding of the block.
  * @param radius - The radius of the block.
+ * @param outline - The outline stroke of the block.
  * @param content - The content of the block.
  * @param align - The alignment of the block.
  */
@@ -63,6 +62,7 @@
   fill: luma(230),
   inset: 15pt,
   radius: 4pt,
+  outline: none,
   alignment: center,
   content
 ) => {
@@ -72,6 +72,7 @@
       fill: fill,
       inset: inset,
       radius: radius,
+      stroke: outline,
       content
     )
   )
@@ -85,6 +86,7 @@
     date.display("[day]/[month]/[year]")
 }
 
+// Header
 #let buildMainHeader(mainHeadingContent, author) = {
   [
     #smallcaps(mainHeadingContent) #h(1fr) #emph(author)
@@ -116,6 +118,12 @@
     author: "Tom Planche",
 ) = {
   locate(loc => {
+    // if we are on the first and second pages, we don't have any header
+    // so we return an empty header
+    if (loc.page() <= 2) {
+      return []
+    }
+
     // Find if there is a level 1 heading on the current page
     let nextMainHeading = query(selector(heading).after(loc)).find(headIt => {
      headIt.location().page() == loc.page() and headIt.level == 1
@@ -142,7 +150,7 @@
       return buildSecondaryHeader(lastMainHeading.body, lastSecondaryHeading.body, author)
     }
 
-    return buildMainHeader(lastMainHeading.body)
+    return buildMainHeader(lastMainHeading.body, author)
   })
 }
 
@@ -280,6 +288,34 @@
   raw(block: true, lang: source.lang, unlabelled-source)
 }
 
+// Maths
+// #let math-definition = (
+//   title: "Définition",
+//   content,
+// ) => {
+//   my-block(
+//     fill: luma(230),
+//     content: [
+//       bold(title),
+//       content
+//     ]
+//   )
+// }
+
+#let ar = name => $accent(#name, harpoon)$
+
+#show heading: i-figured.reset-counters
+#show math.equation: i-figured.show-equation.with(
+  level: 3,
+  zero-fill: false,
+  leading-zero: true,
+  numbering: "(1.1)",
+  prefix: "eqt:",
+  only-labeled: false,  // numbering all block equations implicitly
+  unnumbered-label: "-",
+)
+#set math.equation(number-align: bottom)
+
 // MAIN
 #let conf(
   title: "",
@@ -317,10 +353,10 @@
     header-ascent: 50%,
     footer-descent: 50%,
     margin: (
-      top: 3cm,
-      right: 1.5cm,
-      bottom: 3cm,
-      left: 1.5cm
+        top: 3cm,
+        right: 1cm,
+        bottom: 1.75cm,
+        left: 1cm
     ),
     numbering: "1 / 1",
     number-align: bottom + right,
@@ -401,18 +437,21 @@
   }
 
   show heading: i-figured.reset-counters
-  show math.equation: i-figured.show-equation.with(
-    level: 1,
-    zero-fill: true,
-    leading-zero: true,
-    numbering: "(1.1)",
-    prefix: "eqt:",
-    only-labeled: false,  // numbering all block equations implicitly
-    unnumbered-label: "-",
-  )
+
+  // MATHS
+  // show math.equation: i-figured.show-equation.with(
+  //   level: 1,
+  //   zero-fill: true,
+  //   leading-zero: true,
+  //   numbering: "(1.1)",
+  //   prefix: "eqt:",
+  //   only-labeled: false,  // numbering all block equations implicitly
+  //   unnumbered-label: "-",
+  // )
 
   v(2fr)
 
+  line(length: 100%, stroke: primary-color)
   // Centered text
   // Title
   align(center, text(font: title-font, 2.5em, weight: 700, title))
@@ -427,6 +466,8 @@
     center,
     text(1.1em, date-format(start-date) + " - " + date-format(last-updated-date))
   )
+  v(2em, weak: true)
+  line(length: 100%, stroke: primary-color)
 
   v(2fr)
 
@@ -458,6 +499,8 @@
 
   set page(header: getHeader(author: author))
 
+  pagebreak()
+  outline()
   pagebreak()
 
 

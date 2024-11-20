@@ -8,6 +8,8 @@
 
 #import "conf.typ": *
 
+#import "math.typ": *
+
 #show: conf.with(
   title: "Main Title",
   author: "Tom Planche",
@@ -19,6 +21,35 @@
 )
 
 = Main title
+== Maths
+
+For my maths class, I made these things:
+
+=== `#definition`
+
+#definition(title: "Linéarité")[
+    \ On dit que $phi$ est linéaire (homomorphisme) si:
+
+    $
+        phi(lambda_1 X_1 + lambda_2 X_2 + dots + lambda_n X_n) = lambda_1 phi(X_1) + lambda_2 phi(X_2) + dots + lambda_n phi(X_n)
+    $
+]
+
+=== `#example`
+
+#example(title: "Example title")[
+    Basic text. \
+    #lorem(20)
+  $
+      phi(0, 0, 0) = (0, 0)     = 0_(RR^2) \
+      phi(alpha X_1 + beta X_2) stretch(=)^"?" alpha phi(X_1) + beta phi(X_2) \
+  $
+]
+
+=== `ar`
+
+For vectors, I use `ar(X)` and it gives $ar(X)$.
+
 == Subtitle
 === Subsubtitle
 
