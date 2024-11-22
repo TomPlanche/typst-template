@@ -8,8 +8,10 @@
 
 #import "colors.typ": *
 
+
 #let definition_counter = counter("definition")
 #let example_counter = counter("example")
+#let theorem_counter = counter("theorem")
 
 #let my-definition-definition = mathblock.with(
     radius: 0.3em,
@@ -29,6 +31,14 @@
     counter: example_counter,
 )
 
+#let my-theorem-definition = mathblock.with(
+    radius: 0.3em,
+    inset: 0.8em,
+    numbering: dependent-numbering("1.1"),
+    counter: theorem_counter,
+    titlix: title => [(#title): ],
+)
+
 #let definition = my-definition-definition(
   blocktitle: "Definition",
   fill: color5.lighten(95%),
@@ -39,4 +49,10 @@
   blocktitle: "Example",
   fill: color2.lighten(90%),
   stroke: color2.darken(20%),
+)
+
+#let theorem = my-theorem-definition(
+  blocktitle: "Theorem",
+  fill: color1.lighten(90%),
+  stroke: color1.darken(20%),
 )

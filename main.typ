@@ -7,7 +7,6 @@
  */
 
 #import "conf.typ": *
-
 #import "math.typ": *
 
 #show: conf.with(
@@ -44,6 +43,30 @@ For my maths class, I made these things:
       phi(0, 0, 0) = (0, 0)     = 0_(RR^2) \
       phi(alpha X_1 + beta X_2) stretch(=)^"?" alpha phi(X_1) + beta phi(X_2) \
   $
+]
+
+=== `#theorem`
+==== With `title`
+
+#theorem(title: "Théorème de Stokes")[
+    \
+    Soit $M$ une variété différentielle à bord, orientée de dimension $n$, et $omega$ une $(n – 1)"-forme"$ différentielle à support compact sur $M$ de classe $C_1$.\
+    Alors, on a :
+
+    $
+        integral_M d omega = integral_{partial M} i^* omega
+    $
+
+    où $d$ désigne la dérivée extérieure, $partial M$ le bord de $M$, muni de l'orientation induite,\
+    et $i^* omega = omega |_{partial M}$ la restriction de $omega$ à $partial M$.
+
+]
+==== Without `title`
+
+#theorem[
+    \
+    Soit $E$ un espace vectoriel de dimension finie, $F$ un sous-espace vectoriel de $E$ et $B = (X_1, X_2, dots, X_n)$ une base de $F$. \
+    Alors, il existe une base $(X_1, X_2, dots, X_n, X_{n+1}, dots, X_m)$ de $E$ telle que $(X_1, X_2, dots, X_n)$ soit une base de $F$.
 ]
 
 === `ar`

@@ -8,6 +8,7 @@
  */
 
 #import "@preview/i-figured:0.2.4"
+#import "@preview/great-theorems:0.1.1": *
 
 #let bodyFontSize = 12pt
 
@@ -361,6 +362,8 @@
     numbering: "1 / 1",
     number-align: bottom + right,
   )
+
+  show: great-theorems-init
 
   // paragraph
   set par(justify: true)
