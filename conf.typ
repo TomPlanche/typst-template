@@ -466,8 +466,14 @@
 
   // Date
   align(
-    center,
-    text(1.1em, date-format(start-date) + " - " + date-format(last-updated-date))
+      center,
+      text(1.1em,
+        if start-date == last-updated-date {
+          date-format(start-date)
+        } else {
+          date-format(start-date) + " - " + date-format(last-updated-date)
+        }
+      )
   )
   v(2em, weak: true)
   line(length: 100%, stroke: primary-color)
@@ -475,7 +481,8 @@
   v(2fr)
 
   // Author information.
-  let next-year = str(int(year) + 1)
+  let school-year = if start-date.month() < 9 { int(year) - 1 } else { int(year) }
+  let next-year = str(school-year + 1)
 
   let bottom-text = text(
     author + "\n" +
@@ -488,7 +495,7 @@
     weight: "bold"
   ) + if (class != "") {
     text(
-      str(year) + "-" + str(next-year) + "\n" + emph[#class],
+      str(school-year) + "-" + str(next-year) + "\n" + emph[#class],
       14pt)
   }
 
