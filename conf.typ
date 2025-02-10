@@ -118,16 +118,16 @@
 #let getHeader(
     author: "Tom Planche",
 ) = {
-  locate(loc => {
+  context {
     // if we are on the first and second pages, we don't have any header
     // so we return an empty header
-    if (loc.page() <= 2) {
+    if (here().page() <= 2) {
       return []
     }
 
     // Find if there is a level 1 heading on the current page
-    let nextMainHeading = query(selector(heading).after(loc)).find(headIt => {
-     headIt.location().page() == loc.page() and headIt.level == 1
+    let nextMainHeading = query(selector(heading).after(here())).find(headIt => {
+     headIt.location().page() == here().page() and headIt.level == 1
     })
 
     if (nextMainHeading != none) {
@@ -135,12 +135,12 @@
     }
 
     // Find the last previous level 1 heading -- at this point surely there's one :-)
-    let lastMainHeading = query(selector(heading).before(loc)).filter(headIt => {
+    let lastMainHeading = query(selector(heading).before(here())).filter(headIt => {
       headIt.level == 1
     }).last()
 
     // Find if the last level > 1 heading in previous pages
-    let previousSecondaryHeadingArray = query(selector(heading).before(loc)).filter(headIt => {
+    let previousSecondaryHeadingArray = query(selector(heading).before(here())).filter(headIt => {
       headIt.level > 1
     })
 
@@ -152,7 +152,7 @@
     }
 
     return buildMainHeader(lastMainHeading.body, author)
-  })
+  }
 }
 
 #let code(
@@ -209,7 +209,7 @@
     "\n"
   )
 
-  show raw.where(block: true): it => style(styles => {
+  show raw.where(block: true): it => context {
     let lines = lines
 
     if lines == auto {
@@ -284,7 +284,7 @@
         )
       }
     )
-  })
+  }
 
   raw(block: true, lang: source.lang, unlabelled-source)
 }
